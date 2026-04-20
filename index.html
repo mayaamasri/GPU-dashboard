@@ -530,7 +530,7 @@ function renderK1(m){
     </div>`).join('');
 
   // Table: Dataset | RHS | CPU | k0 | k1 | CPU/k1 | k0/k1
-  document.getElementById('tblTitle').textContent='M3 · KERNEL1 — WARP-PER-ROW · FULL RESULTS';
+  document.getElementById('tblTitle').textContent='KERNEL1: WARP-PER-ROW';
   document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel0 (level-set), and kernel1 (warp-per-row)';
   let rows='';
   m.ds.forEach((ds,i)=>{
@@ -620,8 +620,7 @@ function renderComparison(m){
     </div>`).join('');
 
   // Table
-  const mname=MS[am].tag+' · '+MS[am].name;
-  document.getElementById('tblTitle').textContent=(mname+' — Full Results').toUpperCase();
+  document.getElementById('tblTitle').textContent=('kernel0: level-set').toUpperCase();
   document.getElementById('tblNote').textContent='GPU kernel time vs. sequential CPU baseline';
 
   let rows='';
