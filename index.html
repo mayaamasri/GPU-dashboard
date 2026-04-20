@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpTRSV GPU Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;
+  --surface:#161b27;
+  --surface2:#1c2333;
+  --surface3:#1a2030;
+  --border:#1e2a3e;
+  --border2:#2a3a52;
+  --text:#e8eaf0;
+  --muted:#566070;
+  --subtle:#8090a8;
+
+  /* pastel palette from design reference */
+  --p-purple:#9d8ff5;   /* soft purple */
+  --p-mint:#7ed4b0;     /* soft mint green */
+  --p-amber:#e8b86d;    /* warm amber */
+  --p-blue:#7ab8e8;     /* soft blue */
+  --p-rose:#d4849a;     /* muted rose */
+
+  /* dataset colors */
+  --ds0:  #9d8ff5;  --ds0dim:#5a4fa8;  --ds0bg:rgba(157,143,245,0.14);  --ds0t:#b8aef8;
+  --ds1:  #7ed4b0;  --ds1dim:#3a7a60;  --ds1bg:rgba(126,212,176,0.13);  --ds1t:#99dfc2;
+  --ds2:  #e8b86d;  --ds2dim:#8a6330;  --ds2bg:rgba(232,184,109,0.13);  --ds2t:#f0c98a;
+
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',sans-serif;
+  --radius:12px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.5;
+  min-height:100vh;
+  padding:40px 40px 64px;
+  display:flex;
+  justify-content:center;
+}
+
+/* ── HEADER ── */
+.hdr{margin-bottom:36px}
+h1{font-size:30px;font-weight:700;letter-spacing:-0.025em;line-height:1.1;margin-bottom:4px}
+h1 em{font-style:normal;color:var(--p-purple)}
+.sub{font-size:12px;color:var(--muted);font-family:var(--mono)}
+
+/* ── SECTION LABEL ── */
+.lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+/* ── LAYOUT CONTAINER — tabs + grid share same width ── */
+.layout{width:100%;max-width:1200px;min-width:0}
+
+/* ── MILESTONE TABS: grid with 5 equal cols matching stat grid below ── */
+.m-tabs{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin-bottom:10px; /* tight gap before content below */
+}
+.m-tab{
+  display:flex;flex-direction:column;gap:4px;
+  padding:12px 14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  cursor:pointer;
+  transition:border-color .15s,background .15s;
+  text-align:left;
+  min-width:0;
+}
+.m-tab:hover{border-color:var(--border2);background:var(--surface2)}
+.m-tab.active{border-color:var(--p-purple);background:var(--surface2)}
+.m-tab-top{display:flex;align-items:center;gap:7px}
+.m-tag{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;
+  background:rgba(157,143,245,0.18);color:var(--p-purple);
+  letter-spacing:.05em;flex-shrink:0;
+}
+.m-tab.active .m-tag{background:var(--p-purple);color:#fff}
+.m-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-desc-tab{font-size:10px;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── DATASET PILLS ── */
+.ds-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;padding-top:14px}
+.ds-row .lbl{margin-bottom:0;margin-right:2px}
+.ds-pill{font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 13px;border-radius:20px;cursor:pointer;border:none;transition:opacity .15s,transform .1s}
+.ds-pill:active{transform:scale(0.97)}
+.ds-pill[data-i="0"]{background:var(--ds0bg);color:var(--ds0t)}
+.ds-pill[data-i="1"]{background:var(--ds1bg);color:var(--ds1t)}
+.ds-pill[data-i="2"]{background:var(--ds2bg);color:var(--ds2t)}
+.ds-pill.off{opacity:.28}
+
+/* ── STAT GRID: same 5-col grid as tabs ── */
+.stat-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin-bottom:12px;
+}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 18px 16px;
+  min-width:0;
+}
+.stat-lbl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-bar{height:2.5px;border-radius:2px;width:32px;margin-bottom:10px}
+.stat-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);line-height:1;margin-bottom:5px}
+.stat-val.g{color:var(--p-mint)}
+.stat-val.r{color:var(--p-rose)}
+.stat-val.d{color:var(--muted);font-size:16px}
+.stat-sub{font-size:10px;color:var(--muted);line-height:1.3}
+
+/* ── CHARTS: 2-col ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:720px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px 14px}
+.chart-ttl{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.chart-leg{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:10px}
+.leg-i{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--muted)}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.leg-dot.dash{background:transparent!important;border:1.5px dashed;border-radius:1px}
+.chart-wrap{position:relative;height:200px}
+
+/* ── TABLE ── */
+.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tbl-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tbl-hdr-left{display:flex;flex-direction:column;gap:2px}
+.tbl-note{font-size:11px;color:var(--muted);font-family:var(--mono)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface3)}
+thead th{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 20px;text-align:left;border-bottom:1px solid var(--border)}
+thead th:not(:first-child){text-align:right}
+tbody tr{border-bottom:1px solid rgba(30,42,62,0.7);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(28,35,51,0.5)}
+tbody td{font-family:var(--mono);font-size:11.5px;padding:10px 20px;color:var(--subtle);text-align:right}
+tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
+.tbd{color:var(--muted);font-style:italic}
+.badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:600;padding:3px 9px;border-radius:4px;letter-spacing:.03em}
+.b-pend{background:rgba(80,96,120,.18);color:var(--muted)}
+.b-prog{background:rgba(157,143,245,.14);color:var(--p-purple)}
+.b-up  {background:rgba(126,212,176,.14);color:var(--p-mint)}
+.b-dn  {background:rgba(212,132,154,.14);color:var(--p-rose)}
+
+/* ── M1 TABLE + CHART SIDE BY SIDE ── */
+.m1-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:720px){.m1-row{grid-template-columns:1fr}}
+
+/* ── IN-PROGRESS OVERLAY ── */
+.overlay{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;padding:48px 20px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);text-align:center;
+}
+.overlay.show{display:flex}
+.overlay-icon{font-size:32px}
+.overlay-title{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--p-purple)}
+.overlay-sub{font-size:11px;color:var(--muted);max-width:340px;line-height:1.6}
+
+/* ── FOOTER ── */
+.footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.footer p{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.footer a{color:var(--p-purple);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+
+.fade{animation:fu .2s ease both}
+@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- HEADER -->
+<div class="hdr">
+  <h1>SpTRSV <em>GPU</em></h1>
+  <p class="sub">Sparse Triangular Solver · Parallel Implementation Analysis · AUB CMPS324 Spring 2026</p>
+</div>
+
+<!-- MILESTONE TABS -->
+<div class="lbl">Select Milestone</div>
+<div class="m-tabs" id="mTabs"></div>
+
+<!-- DATASET PILLS (hidden for M1) -->
+<div class="ds-row" id="dsRow"><span class="lbl">Datasets:</span></div>
+
+<!-- STAT CARDS -->
+<div class="stat-grid" id="statGrid"></div>
+
+<!-- M1: TABLE LEFT + CHART RIGHT -->
+<div class="m1-row" id="m1Area" style="display:none">
+  <div class="tbl-card" id="tblCardM1">
+    <div class="tbl-hdr">
+      <div class="tbl-hdr-left">
+        <div class="chart-ttl" id="tblTitleM1"></div>
+        <div class="tbl-note" id="tblNoteM1"></div>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table id="tblM1"></table></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-ttl">Execution Time (ms)</div>
+    <div class="chart-leg" id="m1Leg"></div>
+    <div class="chart-wrap"><canvas id="m1Chart" role="img" aria-label="M1 execution time chart"></canvas></div>
+  </div>
+</div>
+
+<!-- CHARTS / OVERLAY -->
+<div id="chartsArea">
+  <div class="charts-row" id="chartsRow">
+    <div class="chart-card">
+      <div class="chart-ttl">Execution Time (ms)</div>
+      <div class="chart-leg" id="tLeg"></div>
+      <div class="chart-wrap"><canvas id="tChart" role="img" aria-label="Execution time chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-ttl">Speedup over CPU (×)</div>
+      <div class="chart-leg" id="sLeg"></div>
+      <div class="chart-wrap"><canvas id="sChart" role="img" aria-label="Speedup chart"></canvas></div>
+    </div>
+  </div>
+  <div class="overlay" id="overlay">
+    <div class="overlay-title" id="overlayTitle">In Progress</div>
+    <div class="overlay-sub" id="overlaySub">Results will appear here once benchmarking is complete.</div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div style="margin-top:10px" id="tblArea">
+  <div class="tbl-card" id="tblCard">
+    <div class="tbl-hdr">
+      <div class="tbl-hdr-left">
+        <div class="chart-ttl" id="tblTitle"></div>
+        <div class="tbl-note" id="tblNote"></div>
+      </div>
+    </div>
+    <div style="overflow-x:auto"><table id="tbl"></table></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Faysal Elestwani · Maya El Masri · Hala Fatfat &nbsp;·&nbsp; <a href="https://github.com/Faysoula/sptrsv-cuda" target="_blank">github.com/Faysoula/sptrsv-cuda</a></p>
+</div>
+
+</div><!-- /layout -->
+<script>
+/* ── DATA ─────────────────────────────────────────────────────────── */
+const RHS=[128,256,512];
+
+const MS=[
+  // M1 — kernelCPU (sequential, simple table only)
+  {
+    tag:'M1', name:'kernelCPU: Sequential',
+    desc:'Forward substitution, row by row.',
+    type:'cpu_chart',
+    ds:[
+      {n:'rajat18 (small)',       rows:94294,   times:[329,706,1588]},
+      {n:'parabolic_fem (medium)',rows:525825,  times:[4348,8646,17810]},
+      {n:'tmt_sym (large)',       rows:726713,  times:[2197,4624,12656]},
+    ]
+  },
+  // M2 — kernel0 (level-set), full comparison
+  {
+    tag:'M2', name:'kernel0: Level-Set',
+    desc:'Basic parallel implementation',
+    type:'comparison',
+    ds:[
+      {n:'rajat18',       cpu:[329,706,1588],    gpu:[6.2,6.4,7.3]},
+      {n:'parabolic_fem', cpu:[4348,8646,17810], gpu:[11.7,12.2,17.4]},
+      {n:'tmt_sym',       cpu:[2197,4624,12656], gpu:[7427,7606,7828]},
+    ]
+  },
+  // M3 — kernel1 (warp-per-row), full comparison with k0 reference
+  {
+    tag:'M3', name:'kernel1: Warp-per-Row',
+    desc:'First optimization',
+    type:'k1comparison',
+    ds:[
+      {n:'rajat18',       cpu:[329,706,1588],    k0:[6.2,6.4,7.3],    k1:[53.17,79.80,117.47]},
+      {n:'parabolic_fem', cpu:[4348,8646,17810], k0:[11.7,12.2,17.4], k1:[7.31,11.18,23.73]},
+      {n:'tmt_sym',       cpu:[2197,4624,12656], k0:[7427,7606,7828],  k1:[2684.14,3829.50,6168.18]},
+    ]
+  },
+  // M4 — kernel2 (shared mem), in progress
+  {
+    tag:'M4', name:'kernel2: Shared Mem',
+    desc:'Second optimization',
+    type:'inprogress',
+    eta:'Milestone 4'
+  },
+  // M5 — kernel3, in progress
+  {
+    tag:'M5', name:'kernel3: TBD',
+    desc:'Third optimization',
+    type:'inprogress',
+    eta:'Milestone 5'
+  },
+];
+
+const DSC=[
+  {l:'#9d8ff5', cl:'#5a4fa8', bg:'rgba(157,143,245,0.13)', t:'#b8aef8'},
+  {l:'#7ed4b0', cl:'#3a7a60', bg:'rgba(126,212,176,0.12)', t:'#99dfc2'},
+  {l:'#e8b86d', cl:'#8a6330', bg:'rgba(232,184,109,0.12)', t:'#f0c98a'},
+];
+
+let am=0, on=[true,true,true];
+let tC, sC, m1C;
+
+/* ── CHART OPTIONS ─────────────────────────────────────────────────── */
+const cOpts=()=>({
+  responsive:true, maintainAspectRatio:false,
+  plugins:{
+    legend:{display:false},
+    tooltip:{
+      backgroundColor:'#1c2333',borderColor:'#1e2a3e',borderWidth:1,
+      titleFont:{family:"'JetBrains Mono'",size:10},
+      bodyFont:{family:"'JetBrains Mono'",size:10},
+      titleColor:'#e8eaf0',bodyColor:'#8090a8',padding:10,
+    }
+  },
+  scales:{
+    x:{
+      ticks:{color:'#566070',font:{family:"'JetBrains Mono'",size:9},autoSkip:false},
+      grid:{color:'rgba(30,42,62,0.9)'},border:{color:'rgba(30,42,62,0.9)'}
+    },
+    y:{
+      ticks:{color:'#566070',font:{family:"'JetBrains Mono'",size:9},callback:v=>v.toLocaleString()},
+      grid:{color:'rgba(30,42,62,0.9)'},border:{color:'rgba(30,42,62,0.9)'}
+    }
+  },
+  animation:{duration:220}
+});
+
+/* ── INIT ─────────────────────────────────────────────────────────── */
+function init(){
+  // Build tabs
+  const tb=document.getElementById('mTabs');
+  MS.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.className='m-tab'+(i===0?' active':'');
+    b.innerHTML=`<div class="m-tab-top"><span class="m-tag">${m.tag}</span><span class="m-name">${m.name}</span></div><div class="m-desc-tab">${m.desc}</div>`;
+    b.onclick=()=>{am=i;document.querySelectorAll('.m-tab').forEach((t,j)=>t.classList.toggle('active',j===i));render();};
+    tb.appendChild(b);
+  });
+
+  // Build dataset pills
+  const dr=document.getElementById('dsRow');
+  ['rajat18','parabolic_fem','tmt_sym'].forEach((name,i)=>{
+    const b=document.createElement('button');
+    b.className='ds-pill'; b.dataset.i=i; b.textContent=name;
+    b.onclick=()=>{
+      if(on[i]&&on.filter(Boolean).length===1)return;
+      on[i]=!on[i]; b.classList.toggle('off',!on[i]); render();
+    };
+    dr.appendChild(b);
+  });
+
+  // Build charts
+  tC=new Chart(document.getElementById('tChart'),{type:'line',data:{labels:RHS.map(r=>r+' cols'),datasets:[]},options:cOpts()});
+  sC=new Chart(document.getElementById('sChart'),{type:'line',data:{labels:RHS.map(r=>r+' cols'),datasets:[]},options:cOpts()});
+  m1C=new Chart(document.getElementById('m1Chart'),{type:'line',data:{labels:RHS.map(r=>r+' cols'),datasets:[]},options:cOpts()});
+
+  render();
+}
+
+/* ── RENDER ───────────────────────────────────────────────────────── */
+function render(){
+  const m=MS[am];
+
+  // Show/hide pills
+  document.getElementById('dsRow').style.display=(m.type==='cpu_chart'||m.type==='inprogress')?'none':'flex';
+
+  if(m.type==='inprogress'){
+    renderInProgress(m);
+  } else if(m.type==='cpu_chart'){
+    renderCpuOnly(m);
+  } else if(m.type==='k1comparison'){
+    renderK1(m);
+  } else {
+    renderComparison(m);
+  }
+}
+
+/* ── IN PROGRESS ── */
+function renderInProgress(m){
+  document.getElementById('m1Area').style.display='none';
+  document.getElementById('tblArea').style.display='none';
+  document.getElementById('statGrid').innerHTML='';
+  document.getElementById('chartsRow').style.display='none';
+  document.getElementById('overlay').className='overlay show fade';
+  document.getElementById('overlayTitle').textContent=m.name+' — In Progress';
+  document.getElementById('overlaySub').textContent=`Results for this kernel will be completed in ${m.eta}.`;
+  document.getElementById('tblCard').style.display='none';
+}
+
+/* ── CPU ONLY (M1): table left + execution time chart right ── */
+function renderCpuOnly(m){
+  // Hide regular chart row and table, show m1 area
+  document.getElementById('chartsRow').style.display='none';
+  document.getElementById('overlay').className='overlay';
+  document.getElementById('tblArea').style.display='none';
+  document.getElementById('m1Area').style.display='grid';
+
+  const times_flat=m.ds.flatMap(d=>d.times);
+  const maxT=Math.max(...times_flat), minT=Math.min(...times_flat);
+  const maxDs=m.ds.find(d=>d.times.includes(maxT));
+  const minDs=m.ds.find(d=>d.times.includes(minT));
+  const stats=[
+    {lbl:'Fastest Run',  bar:'#9d8ff5', val:minT.toLocaleString()+' ms', cls:'g', sub:minDs.n+' @128 cols'},
+    {lbl:'Slowest Run',  bar:'#9d8ff5', val:maxT.toLocaleString()+' ms', cls:'r', sub:maxDs.n+' @512 cols'},
+    {lbl:'Datasets',     bar:'#9d8ff5', val:'3',   cls:'',  sub:'small · medium · large'},
+    {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3',   cls:'',  sub:'128 · 256 · 512 cols'},
+    {lbl:'Status',       bar:'#9d8ff5', val:'Complete', cls:'', sub:'Sequential baseline'},
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(s=>`
+    <div class="stat-card fade">
+      <div class="stat-lbl">${s.lbl}</div>
+      <div class="stat-bar" style="background:${s.bar}"></div>
+      <div class="stat-val ${s.cls}">${s.val}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+
+  // Populate m1 chart
+  const m1Ds=m.ds.map((ds,i)=>({
+    label:ds.n, data:ds.times,
+    borderColor:DSC[i].l, backgroundColor:'transparent',
+    borderWidth:2.5, pointStyle:'circle', pointRadius:4.5, tension:0.3
+  }));
+  m1C.data.datasets=m1Ds; m1C.update();
+  const lh=items=>items.map(it=>`<span class="leg-i"><span class="leg-dot" style="background:${it.color}"></span>${it.label}</span>`).join('');
+  document.getElementById('m1Leg').innerHTML=lh(m.ds.map((ds,i)=>({color:DSC[i].l,label:ds.n})));
+
+  // Table (inside m1Area left card)
+  document.getElementById('tblTitleM1').textContent='KERNELCPU: SEQUENTIAL BASELINE';
+  document.getElementById('tblNoteM1').textContent='CPU execution time (ms) across RHS column counts';
+  let rows='';
+  m.ds.forEach((ds,i)=>{
+    const c=DSC[i].t;
+    rows+=`<tr>
+      <td style="color:${c}">${ds.n}</td>
+      <td style="text-align:right;color:var(--subtle)">${ds.rows.toLocaleString()}</td>
+      <td>${ds.times[0].toLocaleString()} ms</td>
+      <td>${ds.times[1].toLocaleString()} ms</td>
+      <td>${ds.times[2].toLocaleString()} ms</td>
+    </tr>`;
+  });
+  document.getElementById('tblM1').innerHTML=`
+    <thead><tr>
+      <th>Dataset</th>
+      <th style="text-align:right">Rows</th>
+      <th style="text-align:right">128 cols</th>
+      <th style="text-align:right">256 cols</th>
+      <th style="text-align:right">512 cols</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+/* ── K1 COMPARISON (M3): k0 vs k1 time, k0/k1 speedup ── */
+function renderK1(m){
+  document.getElementById('m1Area').style.display='none';
+  document.getElementById('chartsRow').style.display='';
+  document.getElementById('overlay').className='overlay';
+  document.getElementById('tblArea').style.display='';
+  document.getElementById('tblCard').style.display='';
+  document.getElementById('tChart').closest('.chart-card').querySelector('.chart-ttl').textContent='Execution Time (ms) — k0 vs k1';
+  document.getElementById('sChart').closest('.chart-card').querySelector('.chart-ttl').textContent='k0 / k1 Speedup (k1 improvement over k0)';
+
+  const tDs=[],sDs=[],tL=[],sL=[];
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const c=DSC[i];
+    // time: k0 dashed, k1 solid — no CPU
+    tDs.push({label:ds.n+' k0', data:ds.k0, borderColor:c.cl, backgroundColor:'transparent', borderDash:[5,4], borderWidth:1.8, pointStyle:'rect', pointRadius:3.5, tension:0.3});
+    tDs.push({label:ds.n+' k1', data:ds.k1, borderColor:c.l,  backgroundColor:'transparent', borderDash:[],    borderWidth:2.5, pointStyle:'circle', pointRadius:4.5, tension:0.3});
+    tL.push({color:c.cl,label:ds.n+' k0',dash:true},{color:c.l,label:ds.n+' k1',dash:false});
+    // speedup: k0/k1
+    const sp=ds.k0.map((k0,j)=>parseFloat((k0/ds.k1[j]).toFixed(2)));
+    sDs.push({label:ds.n,data:sp,borderColor:c.l,backgroundColor:'transparent',borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
+    sL.push({color:c.l,label:ds.n,dash:false});
+  });
+  tC.data.datasets=tDs; tC.update();
+  sC.data.datasets=sDs; sC.update();
+
+  const lh=items=>items.map(it=>`<span class="leg-i"><span class="leg-dot${it.dash?' dash':''}" style="${it.dash?'border-color:'+it.color:'background:'+it.color}"></span>${it.label}</span>`).join('');
+  document.getElementById('tLeg').innerHTML=lh(tL);
+  document.getElementById('sLeg').innerHTML=lh(sL);
+
+  // Stats
+  let bestCpuK1=null,bestL='',worstCpuK1=null,worstL='';
+  let bestK0K1=null,bestK0L='', worstK0K1=null,worstK0L='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    ds.k1.forEach((k1,j)=>{
+      const spCpu=ds.cpu[j]/k1;
+      const spK0=ds.k0[j]/k1;
+
+      if(bestCpuK1===null||spCpu>bestCpuK1){bestCpuK1=spCpu;bestL=ds.n+' @'+RHS[j];}
+      if(worstCpuK1===null||spCpu<worstCpuK1){worstCpuK1=spCpu;worstL=ds.n+' @'+RHS[j];}
+      if(bestK0K1===null||spK0>bestK0K1){bestK0K1=spK0;bestK0L=ds.n+' @'+RHS[j];}
+      if(worstK0K1===null||spK0<worstK0K1){worstK0K1=spK0;worstK0L=ds.n+' @'+RHS[j];}
+    });
+  });
+  const stats=[
+    {lbl:'Best k0/k1',   bar:'#9d8ff5', val:bestK0K1!==null?bestK0K1.toFixed(2)+'×':'—', cls:bestK0K1>=1?'g':'r', sub:bestK0L},
+    {lbl:'Worst k0/k1', bar:'#9d8ff5', val:worstK0K1!==null?worstK0K1.toFixed(2)+'×':'—', cls:worstK0K1>=1?'':'r', sub:worstK0L},
+    {lbl:'Datasets',     bar:'#9d8ff5', val:'3',   cls:'',  sub:'small · medium · large'},
+    {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
+    {lbl:'Status',       bar:'#9d8ff5', val:'Complete', cls:'', sub:'kernel1 benchmarked'},
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(s=>`
+    <div class="stat-card fade">
+      <div class="stat-lbl">${s.lbl}</div>
+      <div class="stat-bar" style="background:${s.bar}"></div>
+      <div class="stat-val ${s.cls}">${s.val}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+
+  // Table: Dataset | RHS | CPU | k0 | k1 | CPU/k1 | k0/k1
+  document.getElementById('tblTitle').textContent='M3 · KERNEL1 — WARP-PER-ROW · FULL RESULTS';
+  document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel0 (level-set), and kernel1 (warp-per-row)';
+  let rows='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const tc=DSC[i].t;
+    RHS.forEach((rhs,j)=>{
+      const cpu=ds.cpu[j], k0=ds.k0[j], k1=ds.k1[j];
+      const cpuK1=(cpu/k1), k0K1=(k0/k1);
+      const cpuK1Color=cpuK1>=1?'var(--p-mint)':'var(--p-rose)';
+      const k0K1Color=k0K1>=1?'var(--p-mint)':'var(--p-rose)';
+      const k0K1Label=k0K1>=1?'(k1 faster)':'(k0 faster)';
+      rows+=`<tr>
+        <td style="color:${tc};font-weight:600">${j===0?ds.n:''}</td>
+        <td>${rhs}</td>
+        <td>${cpu.toLocaleString()}</td>
+        <td>${k0.toLocaleString()}</td>
+        <td>${k1.toFixed(2)}</td>
+        <td style="font-weight:700;color:${cpuK1Color}">${cpuK1.toFixed(1)}×</td>
+        <td style="font-weight:700;color:${k0K1Color}">${k0K1.toFixed(2)}× <span style="font-size:9px;opacity:0.7">${k0K1Label}</span></td>
+      </tr>`;
+    });
+  });
+  document.getElementById('tbl').innerHTML=`
+    <thead><tr>
+      <th>Dataset</th><th>RHS</th><th>CPU (ms)</th><th>k0 (ms)</th><th>k1 (ms)</th><th>CPU/k1</th><th>k0/k1 (k1 speedup)</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+/* ── COMPARISON (M2): CPU vs GPU ── */
+function renderComparison(m){
+  document.getElementById('m1Area').style.display='none';
+  const hasPending=m.ds.some(ds=>ds.gpu.some(v=>v===null));
+  const hasResults=m.ds.some(ds=>ds.gpu.some(v=>v!==null));
+
+  // Charts
+  document.getElementById('chartsRow').style.display='';
+  document.getElementById('overlay').className='overlay';
+  document.getElementById('tblArea').style.display='';
+  document.getElementById('tblCard').style.display='';
+
+  const tDs=[],sDs=[],tL=[],sL=[];
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const c=DSC[i];
+    const hg=ds.gpu.some(v=>v!==null);
+    tDs.push({label:ds.n+' CPU',data:ds.cpu,borderColor:c.cl,backgroundColor:'transparent',borderDash:[5,4],borderWidth:1.5,pointStyle:'rect',pointRadius:3.5,tension:0.3});
+    tL.push({color:c.cl,label:ds.n+' CPU',dash:true});
+    tDs.push({label:ds.n+' GPU',data:hg?ds.gpu:[null,null,null],borderColor:c.l,backgroundColor:'transparent',borderDash:[],borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
+    tL.push({color:c.l,label:ds.n+' GPU',dash:false});
+    const sp=ds.cpu.map((cpu,j)=>ds.gpu[j]!=null?parseFloat((cpu/ds.gpu[j]).toFixed(2)):null);
+    if(sp.some(v=>v!==null)){
+      sDs.push({label:ds.n,data:sp,borderColor:c.l,backgroundColor:'transparent',borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
+      sL.push({color:c.l,label:ds.n,dash:false});
+    }
+  });
+  tC.data.datasets=tDs; tC.update();
+  sC.data.datasets=sDs; sC.update();
+  const lh=items=>items.map(it=>`<span class="leg-i"><span class="leg-dot${it.dash?' dash':''}" style="${it.dash?'border-color:'+it.color:'background:'+it.color}"></span>${it.label}</span>`).join('');
+  document.getElementById('tLeg').innerHTML=lh(tL);
+  document.getElementById('sLeg').innerHTML=lh(sL);
+
+  // Stats
+  let best=null,bestL='',worst=null,worstL='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    ds.gpu.forEach((g,j)=>{
+      if(g===null)return;
+      const sp=ds.cpu[j]/g;
+      if(best===null||sp>best){best=sp;bestL=ds.n+' @'+RHS[j];}
+      if(worst===null||sp<worst){worst=sp;worstL=ds.n+' @'+RHS[j];}
+    });
+  });
+  const stats=[
+    {lbl:'Best Speedup',  bar:best!==null?'#9d8ff5':'#2a3a52',  val:best!==null?best.toFixed(0)+'×':'—',  cls:best!==null?(best>=1?'g':'r'):'d', sub:bestL||'pending results'},
+    {lbl:'Worst Speedup', bar:worst!==null?(worst>=1?'#9d8ff5':'#9d8ff5'):'#9d8ff5', val:worst!==null?worst.toFixed(2)+'×':'—', cls:worst!==null?(worst>=1?'':'r'):'d', sub:worstL||'pending results'},
+    {lbl:'RHS Configs',   bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
+    {lbl:'Datasets',      bar:'#9d8ff5', val:'3', cls:'', sub:'small · med · large'},
+    {lbl:'Status', bar:'#9d8ff5', val:hasPending?(hasResults?'Partial':'Pending'):'Complete', cls:'', sub:MS[am].name},
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(s=>`
+    <div class="stat-card fade">
+      <div class="stat-lbl">${s.lbl}</div>
+      <div class="stat-bar" style="background:${s.bar}"></div>
+      <div class="stat-val ${s.cls}">${s.val}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+
+  // Table
+  const mname=MS[am].tag+' · '+MS[am].name;
+  document.getElementById('tblTitle').textContent=(mname+' — Full Results').toUpperCase();
+  document.getElementById('tblNote').textContent='GPU kernel time vs. sequential CPU baseline';
+
+  let rows='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const tc=DSC[i].t;
+    RHS.forEach((rhs,j)=>{
+      const cpu=ds.cpu[j],gpu=ds.gpu[j];
+      const sp=gpu!==null?(cpu/gpu):null;
+      const faster=sp!==null&&gpu<cpu;
+      const spCell=sp!==null
+        ?`<span style="font-weight:700;color:${faster?'var(--p-mint)':'var(--p-rose)'}">${sp.toFixed(1)}×</span>`
+        :`<span style="color:var(--muted)">—</span>`;
+      rows+=`<tr>
+        <td style="color:${tc}">${j===0?ds.n:''}</td>
+        <td>${rhs}</td>
+        <td>${cpu.toLocaleString()} ms</td>
+        <td>${gpu!==null?gpu.toLocaleString()+' ms':`<span class="tbd">TBD</span>`}</td>
+        <td>${spCell}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById('tbl').innerHTML=`
+    <thead><tr>
+      <th>Dataset</th><th>RHS</th><th>CPU (ms)</th><th>GPU (ms)</th><th>Speedup</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+init();
+</script>
+</body>
+</html>
