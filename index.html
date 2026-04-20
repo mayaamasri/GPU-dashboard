@@ -607,8 +607,8 @@ function renderComparison(m){
   const stats=[
     {lbl:'Best Speedup',  bar:best!==null?'#9d8ff5':'#2a3a52',  val:best!==null?best.toFixed(0)+'×':'—',  cls:best!==null?(best>=1?'g':'r'):'d', sub:bestL||'pending results'},
     {lbl:'Worst Speedup', bar:worst!==null?(worst>=1?'#9d8ff5':'#9d8ff5'):'#9d8ff5', val:worst!==null?worst.toFixed(2)+'×':'—', cls:worst!==null?(worst>=1?'':'r'):'d', sub:worstL||'pending results'},
-    {lbl:'RHS Configs',   bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
     {lbl:'Datasets',      bar:'#9d8ff5', val:'3', cls:'', sub:'small · med · large'},
+    {lbl:'RHS Configs',   bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
     {lbl:'Status', bar:'#9d8ff5', val:hasPending?(hasResults?'Partial':'Pending'):'Complete', cls:'', sub:MS[am].name},
   ];
   document.getElementById('statGrid').innerHTML=stats.map(s=>`
