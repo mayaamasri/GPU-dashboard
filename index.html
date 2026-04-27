@@ -91,7 +91,7 @@ h1 em{font-style:normal;color:var(--p-purple)}
 }
 .m-tab.active .m-tag{background:var(--p-purple);color:#fff}
 .m-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.m-desc-tab{font-size:10px;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.m-desc-tab{font-size:10px;color:var(--muted);line-height:1.3;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* ── DATASET PILLS ── */
 .ds-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;padding-top:14px}
@@ -103,10 +103,10 @@ h1 em{font-style:normal;color:var(--p-purple)}
 .ds-pill[data-i="2"]{background:var(--ds2bg);color:var(--ds2t)}
 .ds-pill.off{opacity:.28}
 
-/* ── STAT GRID: same 5-col grid as tabs ── */
+/* ── STAT GRID: responsive cards that fill available width ── */
 .stat-grid{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
   gap:10px;
   margin-bottom:12px;
 }
@@ -179,6 +179,56 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
 
 .fade{animation:fu .2s ease both}
 @keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:720px){
+  .charts-row{grid-template-columns:1fr}
+  .m1-row{grid-template-columns:1fr}
+}
+
+@media(max-width:600px){
+  body{padding:14px 14px 48px}
+
+  /* Header */
+  h1{font-size:22px}
+  .sub{font-size:10px}
+  .hdr{margin-bottom:24px}
+
+  /* Milestone tabs: 1 column, horizontal layout per tab */
+  .m-tabs{grid-template-columns:1fr;gap:6px}
+  .m-tab{flex-direction:row;align-items:center;gap:10px;padding:10px 12px}
+  .m-tab-top{flex:1;min-width:0}
+  .m-desc-tab{display:none}
+
+  /* Stat cards: 2 columns */
+  .stat-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-val{font-size:18px}
+  .stat-card{padding:12px 14px}
+
+  /* Charts: full width, contained */
+  .chart-card{padding:14px 14px 10px}
+  .chart-wrap{height:180px}
+  #chartsArea,#chartsArea *{max-width:100%}
+  .charts-row{width:100%;overflow:hidden}
+
+  /* Table: scrollable inside card */
+  .tbl-card{overflow:hidden}
+  thead th{padding:8px 10px;font-size:8.5px;white-space:nowrap}
+  tbody td{padding:8px 10px;font-size:10.5px;white-space:nowrap}
+  tbody td:first-child{font-size:11px}
+  .tbl-hdr{padding:10px 14px}
+  .tbl-note{font-size:10px}
+
+  /* Dataset pills */
+  .ds-pill{font-size:10px;padding:3px 10px}
+
+  /* Footer */
+  .footer{flex-direction:column;gap:4px}
+  .footer p{font-size:9px}
+
+  /* Prevent any overflow */
+  .layout{overflow:hidden}
+}
 </style>
 </head>
 <body>
@@ -430,7 +480,6 @@ function renderCpuOnly(m){
     {lbl:'Slowest Run',  bar:'#9d8ff5', val:maxT.toLocaleString()+' ms', cls:'r', sub:maxDs.n+' @512 cols'},
     {lbl:'Datasets',     bar:'#9d8ff5', val:'3',   cls:'',  sub:'small · medium · large'},
     {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3',   cls:'',  sub:'128 · 256 · 512 cols'},
-    {lbl:'Status',       bar:'#9d8ff5', val:'Complete', cls:'', sub:'Sequential baseline'},
   ];
   document.getElementById('statGrid').innerHTML=stats.map(s=>`
     <div class="stat-card fade">
@@ -525,7 +574,6 @@ function renderK1(m){
     {lbl:'Worst k0/k1', bar:'#9d8ff5', val:worstK0K1!==null?worstK0K1.toFixed(2)+'×':'—', cls:worstK0K1>=1?'':'r', sub:worstK0L},
     {lbl:'Datasets',     bar:'#9d8ff5', val:'3',   cls:'',  sub:'small · medium · large'},
     {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
-    {lbl:'Status',       bar:'#9d8ff5', val:'Complete', cls:'', sub:'kernel1 benchmarked'},
   ];
   document.getElementById('statGrid').innerHTML=stats.map(s=>`
     <div class="stat-card fade">
@@ -615,7 +663,6 @@ function renderK2(m){
     {lbl:'Worst k1/k2',  bar:'#9d8ff5', val:worstK1K2!==null?worstK1K2.toFixed(2)+'×':'—', cls:worstK1K2>=1?'g':'r', sub:worstK1L},
     {lbl:'Best CPU/k2',  bar:'#9d8ff5', val:bestCpuK2!==null?bestCpuK2.toFixed(0)+'×':'—', cls:'g', sub:bestCpuL},
     {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
-    {lbl:'Status',       bar:'#9d8ff5', val:'Complete', cls:'', sub:'kernel2 benchmarked'},
   ];
   document.getElementById('statGrid').innerHTML=stats.map(s=>`
     <div class="stat-card fade">
@@ -705,7 +752,6 @@ function renderComparison(m){
     {lbl:'Worst Speedup', bar:worst!==null?(worst>=1?'#9d8ff5':'#9d8ff5'):'#9d8ff5', val:worst!==null?worst.toFixed(2)+'×':'—', cls:worst!==null?(worst>=1?'':'r'):'d', sub:worstL||'pending results'},
     {lbl:'RHS Configs',   bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
     {lbl:'Datasets',      bar:'#9d8ff5', val:'3', cls:'', sub:'small · med · large'},
-    {lbl:'Status', bar:'#9d8ff5', val:hasPending?(hasResults?'Partial':'Pending'):'Complete', cls:'', sub:MS[am].name},
   ];
   document.getElementById('statGrid').innerHTML=stats.map(s=>`
     <div class="stat-card fade">
