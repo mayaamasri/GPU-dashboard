@@ -295,12 +295,16 @@ const MS=[
       {n:'tmt_sym',       cpu:[2197,4624,12656], k0:[7427,7606,7828],  k1:[2684.14,3829.50,6168.18]},
     ]
   },
-  // M4 — kernel2 (shared mem), in progress
+  // M4 — kernel2 (shared mem), full comparison with k1 reference
   {
     tag:'M4', name:'kernel2: Shared Mem',
-    desc:'Second optimization',
-    type:'inprogress',
-    eta:'Milestone 4'
+    desc:'Second optimization — shared memory tiling',
+    type:'k2comparison',
+    ds:[
+      {n:'rajat18',       cpu:[307.1,625.5,1361.7],   k1:[53.17,79.88,117.47],    k2:[33.24,35.45,42.90]},
+      {n:'parabolic_fem', cpu:[3652.5,7356.6,15186.5], k1:[7.31,11.18,23.73],     k2:[9.09,9.89,18.02]},
+      {n:'tmt_sym',       cpu:[1970.2,3971.2,11116.0], k1:[2684.14,3829.58,6168.18], k2:[2432.30,3534.65,5742.67]},
+    ]
   },
   // M5 — kernel3, in progress
   {
@@ -390,6 +394,8 @@ function render(){
     renderCpuOnly(m);
   } else if(m.type==='k1comparison'){
     renderK1(m);
+  } else if(m.type==='k2comparison'){
+    renderK2(m);
   } else {
     renderComparison(m);
   }
@@ -530,7 +536,7 @@ function renderK1(m){
     </div>`).join('');
 
   // Table: Dataset | RHS | CPU | k0 | k1 | CPU/k1 | k0/k1
-  document.getElementById('tblTitle').textContent='KERNEL1: WARP-PER-ROW';
+  document.getElementById('tblTitle').textContent='M3 · KERNEL1 — WARP-PER-ROW · FULL RESULTS';
   document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel0 (level-set), and kernel1 (warp-per-row)';
   let rows='';
   m.ds.forEach((ds,i)=>{
@@ -556,6 +562,96 @@ function renderK1(m){
   document.getElementById('tbl').innerHTML=`
     <thead><tr>
       <th>Dataset</th><th>RHS</th><th>CPU (ms)</th><th>k0 (ms)</th><th>k1 (ms)</th><th>CPU/k1</th><th>k0/k1 (k1 speedup)</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+/* ── K2 COMPARISON (M4): k1 vs k2 time, k1/k2 speedup ── */
+function renderK2(m){
+  document.getElementById('m1Area').style.display='none';
+  document.getElementById('chartsRow').style.display='';
+  document.getElementById('overlay').className='overlay';
+  document.getElementById('tblArea').style.display='';
+  document.getElementById('tblCard').style.display='';
+  document.getElementById('tChart').closest('.chart-card').querySelector('.chart-ttl').textContent='Execution Time (ms) — k1 vs k2';
+  document.getElementById('sChart').closest('.chart-card').querySelector('.chart-ttl').textContent='k1 / k2 Speedup (k2 improvement over k1)';
+
+  const tDs=[],sDs=[],tL=[],sL=[];
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const c=DSC[i];
+    // time: k1 dashed, k2 solid
+    tDs.push({label:ds.n+' k1', data:ds.k1, borderColor:c.cl, backgroundColor:'transparent', borderDash:[5,4], borderWidth:1.8, pointStyle:'rect', pointRadius:3.5, tension:0.3});
+    tDs.push({label:ds.n+' k2', data:ds.k2, borderColor:c.l,  backgroundColor:'transparent', borderDash:[],    borderWidth:2.5, pointStyle:'circle', pointRadius:4.5, tension:0.3});
+    tL.push({color:c.cl,label:ds.n+' k1',dash:true},{color:c.l,label:ds.n+' k2',dash:false});
+    // speedup: k1/k2
+    const sp=ds.k1.map((k1,j)=>parseFloat((k1/ds.k2[j]).toFixed(2)));
+    sDs.push({label:ds.n,data:sp,borderColor:c.l,backgroundColor:'transparent',borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
+    sL.push({color:c.l,label:ds.n,dash:false});
+  });
+  tC.data.datasets=tDs; tC.update();
+  sC.data.datasets=sDs; sC.update();
+
+  const lh=items=>items.map(it=>`<span class="leg-i"><span class="leg-dot${it.dash?' dash':''}" style="${it.dash?'border-color:'+it.color:'background:'+it.color}"></span>${it.label}</span>`).join('');
+  document.getElementById('tLeg').innerHTML=lh(tL);
+  document.getElementById('sLeg').innerHTML=lh(sL);
+
+  // Stats
+  let bestK1K2=null,bestK1L='', worstK1K2=null,worstK1L='';
+  let bestCpuK2=null,bestCpuL='', worstCpuK2=null,worstCpuL='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    ds.k2.forEach((k2,j)=>{
+      const spK1=ds.k1[j]/k2;
+      const spCpu=ds.cpu[j]/k2;
+      if(bestK1K2===null||spK1>bestK1K2){bestK1K2=spK1;bestK1L=ds.n+' @'+RHS[j];}
+      if(worstK1K2===null||spK1<worstK1K2){worstK1K2=spK1;worstK1L=ds.n+' @'+RHS[j];}
+      if(bestCpuK2===null||spCpu>bestCpuK2){bestCpuK2=spCpu;bestCpuL=ds.n+' @'+RHS[j];}
+      if(worstCpuK2===null||spCpu<worstCpuK2){worstCpuK2=spCpu;worstCpuL=ds.n+' @'+RHS[j];}
+    });
+  });
+  const stats=[
+    {lbl:'Best k1/k2',   bar:'#9d8ff5', val:bestK1K2!==null?bestK1K2.toFixed(2)+'×':'—', cls:bestK1K2>=1?'g':'r', sub:bestK1L},
+    {lbl:'Worst k1/k2',  bar:'#9d8ff5', val:worstK1K2!==null?worstK1K2.toFixed(2)+'×':'—', cls:worstK1K2>=1?'g':'r', sub:worstK1L},
+    {lbl:'Best CPU/k2',  bar:'#9d8ff5', val:bestCpuK2!==null?bestCpuK2.toFixed(0)+'×':'—', cls:'g', sub:bestCpuL},
+    {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
+    {lbl:'Status',       bar:'#9d8ff5', val:'Complete', cls:'', sub:'kernel2 benchmarked'},
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(s=>`
+    <div class="stat-card fade">
+      <div class="stat-lbl">${s.lbl}</div>
+      <div class="stat-bar" style="background:${s.bar}"></div>
+      <div class="stat-val ${s.cls}">${s.val}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+
+  // Table: Dataset | RHS | CPU | k1 | k2 | CPU/k2 | k1/k2
+  document.getElementById('tblTitle').textContent='M4 · KERNEL2 — SHARED MEMORY · FULL RESULTS';
+  document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel1 (warp-per-row), and kernel2 (shared memory)';
+  let rows='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const tc=DSC[i].t;
+    RHS.forEach((rhs,j)=>{
+      const cpu=ds.cpu[j], k1=ds.k1[j], k2=ds.k2[j];
+      const cpuK2=(cpu/k2), k1K2=(k1/k2);
+      const cpuK2Color=cpuK2>=1?'var(--p-mint)':'var(--p-rose)';
+      const k1K2Color=k1K2>=1?'var(--p-mint)':'var(--p-rose)';
+      const k1K2Label=k1K2>=1?'(k2 faster)':'(k1 faster)';
+      rows+=`<tr>
+        <td style="color:${tc};font-weight:600">${j===0?ds.n:''}</td>
+        <td>${rhs}</td>
+        <td>${cpu.toLocaleString()}</td>
+        <td>${k1.toFixed(2)}</td>
+        <td>${k2.toFixed(2)}</td>
+        <td style="font-weight:700;color:${cpuK2Color}">${cpuK2.toFixed(1)}×</td>
+        <td style="font-weight:700;color:${k1K2Color}">${k1K2.toFixed(2)}× <span style="font-size:9px;opacity:0.7">${k1K2Label}</span></td>
+      </tr>`;
+    });
+  });
+  document.getElementById('tbl').innerHTML=`
+    <thead><tr>
+      <th>Dataset</th><th>RHS</th><th>CPU (ms)</th><th>k1 (ms)</th><th>k2 (ms)</th><th>CPU/k2</th><th>k1/k2 (k2 speedup)</th>
     </tr></thead>
     <tbody>${rows}</tbody>`;
 }
@@ -607,8 +703,8 @@ function renderComparison(m){
   const stats=[
     {lbl:'Best Speedup',  bar:best!==null?'#9d8ff5':'#2a3a52',  val:best!==null?best.toFixed(0)+'×':'—',  cls:best!==null?(best>=1?'g':'r'):'d', sub:bestL||'pending results'},
     {lbl:'Worst Speedup', bar:worst!==null?(worst>=1?'#9d8ff5':'#9d8ff5'):'#9d8ff5', val:worst!==null?worst.toFixed(2)+'×':'—', cls:worst!==null?(worst>=1?'':'r'):'d', sub:worstL||'pending results'},
-    {lbl:'Datasets',      bar:'#9d8ff5', val:'3', cls:'', sub:'small · med · large'},
     {lbl:'RHS Configs',   bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
+    {lbl:'Datasets',      bar:'#9d8ff5', val:'3', cls:'', sub:'small · med · large'},
     {lbl:'Status', bar:'#9d8ff5', val:hasPending?(hasResults?'Partial':'Pending'):'Complete', cls:'', sub:MS[am].name},
   ];
   document.getElementById('statGrid').innerHTML=stats.map(s=>`
@@ -620,7 +716,8 @@ function renderComparison(m){
     </div>`).join('');
 
   // Table
-  document.getElementById('tblTitle').textContent=('kernel0: level-set').toUpperCase();
+  const mname=MS[am].tag+' · '+MS[am].name;
+  document.getElementById('tblTitle').textContent=(mname+' — Full Results').toUpperCase();
   document.getElementById('tblNote').textContent='GPU kernel time vs. sequential CPU baseline';
 
   let rows='';
