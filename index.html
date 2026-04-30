@@ -20,14 +20,12 @@
   --muted:#566070;
   --subtle:#8090a8;
 
-  /* pastel palette from design reference */
-  --p-purple:#9d8ff5;   /* soft purple */
-  --p-mint:#7ed4b0;     /* soft mint green */
-  --p-amber:#e8b86d;    /* warm amber */
-  --p-blue:#7ab8e8;     /* soft blue */
-  --p-rose:#d4849a;     /* muted rose */
+  --p-purple:#9d8ff5;
+  --p-mint:#7ed4b0;
+  --p-amber:#e8b86d;
+  --p-blue:#7ab8e8;
+  --p-rose:#d4849a;
 
-  /* dataset colors */
   --ds0:  #9d8ff5;  --ds0dim:#5a4fa8;  --ds0bg:rgba(157,143,245,0.14);  --ds0t:#b8aef8;
   --ds1:  #7ed4b0;  --ds1dim:#3a7a60;  --ds1bg:rgba(126,212,176,0.13);  --ds1t:#99dfc2;
   --ds2:  #e8b86d;  --ds2dim:#8a6330;  --ds2bg:rgba(232,184,109,0.13);  --ds2t:#f0c98a;
@@ -50,24 +48,20 @@ body{
   justify-content:center;
 }
 
-/* ── HEADER ── */
 .hdr{margin-bottom:36px}
 h1{font-size:30px;font-weight:700;letter-spacing:-0.025em;line-height:1.1;margin-bottom:4px}
 h1 em{font-style:normal;color:var(--p-purple)}
 .sub{font-size:12px;color:var(--muted);font-family:var(--mono)}
 
-/* ── SECTION LABEL ── */
 .lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 
-/* ── LAYOUT CONTAINER — tabs + grid share same width ── */
 .layout{width:100%;max-width:1200px;min-width:0}
 
-/* ── MILESTONE TABS: grid with 5 equal cols matching stat grid below ── */
 .m-tabs{
   display:grid;
   grid-template-columns:repeat(5,1fr);
   gap:10px;
-  margin-bottom:10px; /* tight gap before content below */
+  margin-bottom:10px;
 }
 .m-tab{
   display:flex;flex-direction:column;gap:4px;
@@ -93,7 +87,6 @@ h1 em{font-style:normal;color:var(--p-purple)}
 .m-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .m-desc-tab{font-size:10px;color:var(--muted);line-height:1.3;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-/* ── DATASET PILLS ── */
 .ds-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;padding-top:14px}
 .ds-row .lbl{margin-bottom:0;margin-right:2px}
 .ds-pill{font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 13px;border-radius:20px;cursor:pointer;border:none;transition:opacity .15s,transform .1s}
@@ -103,7 +96,6 @@ h1 em{font-style:normal;color:var(--p-purple)}
 .ds-pill[data-i="2"]{background:var(--ds2bg);color:var(--ds2t)}
 .ds-pill.off{opacity:.28}
 
-/* ── STAT GRID: responsive cards that fill available width ── */
 .stat-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -123,7 +115,6 @@ h1 em{font-style:normal;color:var(--p-purple)}
 .stat-val.d{color:var(--muted);font-size:16px}
 .stat-sub{font-size:10px;color:var(--muted);line-height:1.3}
 
-/* ── CHARTS: 2-col ── */
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:720px){.charts-row{grid-template-columns:1fr}}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px 14px}
@@ -134,7 +125,6 @@ h1 em{font-style:normal;color:var(--p-purple)}
 .leg-dot.dash{background:transparent!important;border:1.5px dashed;border-radius:1px}
 .chart-wrap{position:relative;height:200px}
 
-/* ── TABLE ── */
 .tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .tbl-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .tbl-hdr-left{display:flex;flex-direction:column;gap:2px}
@@ -155,11 +145,9 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
 .b-up  {background:rgba(126,212,176,.14);color:var(--p-mint)}
 .b-dn  {background:rgba(212,132,154,.14);color:var(--p-rose)}
 
-/* ── M1 TABLE + CHART SIDE BY SIDE ── */
 .m1-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:720px){.m1-row{grid-template-columns:1fr}}
 
-/* ── IN-PROGRESS OVERLAY ── */
 .overlay{
   display:none;flex-direction:column;align-items:center;justify-content:center;
   gap:10px;padding:48px 20px;
@@ -171,7 +159,6 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
 .overlay-title{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--p-purple)}
 .overlay-sub{font-size:11px;color:var(--muted);max-width:340px;line-height:1.6}
 
-/* ── FOOTER ── */
 .footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .footer p{font-family:var(--mono);font-size:10px;color:var(--muted)}
 .footer a{color:var(--p-purple);text-decoration:none}
@@ -180,53 +167,35 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
 .fade{animation:fu .2s ease both}
 @keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-/* ── MOBILE RESPONSIVE ── */
 @media(max-width:720px){
   .charts-row{grid-template-columns:1fr}
   .m1-row{grid-template-columns:1fr}
 }
-
 @media(max-width:600px){
   body{padding:14px 14px 48px}
-
-  /* Header */
   h1{font-size:22px}
   .sub{font-size:10px}
   .hdr{margin-bottom:24px}
-
-  /* Milestone tabs: 1 column, horizontal layout per tab */
   .m-tabs{grid-template-columns:1fr;gap:6px}
   .m-tab{flex-direction:row;align-items:center;gap:10px;padding:10px 12px}
   .m-tab-top{flex:1;min-width:0}
   .m-desc-tab{display:none}
-
-  /* Stat cards: 2 columns */
   .stat-grid{grid-template-columns:1fr 1fr;gap:8px}
   .stat-val{font-size:18px}
   .stat-card{padding:12px 14px}
-
-  /* Charts: full width, contained */
   .chart-card{padding:14px 14px 10px}
   .chart-wrap{height:180px}
   #chartsArea,#chartsArea *{max-width:100%}
   .charts-row{width:100%;overflow:hidden}
-
-  /* Table: scrollable inside card */
   .tbl-card{overflow:hidden}
   thead th{padding:8px 10px;font-size:8.5px;white-space:nowrap}
   tbody td{padding:8px 10px;font-size:10.5px;white-space:nowrap}
   tbody td:first-child{font-size:11px}
   .tbl-hdr{padding:10px 14px}
   .tbl-note{font-size:10px}
-
-  /* Dataset pills */
   .ds-pill{font-size:10px;padding:3px 10px}
-
-  /* Footer */
   .footer{flex-direction:column;gap:4px}
   .footer p{font-size:9px}
-
-  /* Prevent any overflow */
   .layout{overflow:hidden}
 }
 </style>
@@ -234,23 +203,19 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
 <body>
 <div class="layout">
 
-<!-- HEADER -->
 <div class="hdr">
   <h1>SpTRSV <em>GPU</em></h1>
   <p class="sub">Sparse Triangular Solver · Parallel Implementation Analysis · AUB CMPS324 Spring 2026</p>
 </div>
 
-<!-- MILESTONE TABS -->
 <div class="lbl">Select Milestone</div>
 <div class="m-tabs" id="mTabs"></div>
 
-<!-- DATASET PILLS (hidden for M1) -->
 <div class="ds-row" id="dsRow"><span class="lbl">Datasets:</span></div>
 
-<!-- STAT CARDS -->
 <div class="stat-grid" id="statGrid"></div>
 
-<!-- M1: TABLE LEFT + CHART RIGHT -->
+<!-- M1: table left + chart right -->
 <div class="m1-row" id="m1Area" style="display:none">
   <div class="tbl-card" id="tblCardM1">
     <div class="tbl-hdr">
@@ -268,16 +233,16 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
   </div>
 </div>
 
-<!-- CHARTS / OVERLAY -->
+<!-- Charts / overlay -->
 <div id="chartsArea">
   <div class="charts-row" id="chartsRow">
     <div class="chart-card">
-      <div class="chart-ttl">Execution Time (ms)</div>
+      <div class="chart-ttl" id="tChartTitle">Execution Time (ms)</div>
       <div class="chart-leg" id="tLeg"></div>
       <div class="chart-wrap"><canvas id="tChart" role="img" aria-label="Execution time chart"></canvas></div>
     </div>
     <div class="chart-card">
-      <div class="chart-ttl">Speedup over CPU (×)</div>
+      <div class="chart-ttl" id="sChartTitle">Speedup over CPU (×)</div>
       <div class="chart-leg" id="sLeg"></div>
       <div class="chart-wrap"><canvas id="sChart" role="img" aria-label="Speedup chart"></canvas></div>
     </div>
@@ -288,7 +253,7 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
   </div>
 </div>
 
-<!-- TABLE -->
+<!-- Table -->
 <div style="margin-top:10px" id="tblArea">
   <div class="tbl-card" id="tblCard">
     <div class="tbl-hdr">
@@ -301,18 +266,16 @@ tbody td:first-child{text-align:left;font-weight:600;font-size:12px}
   </div>
 </div>
 
-<!-- FOOTER -->
 <div class="footer">
   <p>Faysal Elestwani · Maya El Masri · Hala Fatfat &nbsp;·&nbsp; <a href="https://github.com/Faysoula/sptrsv-cuda" target="_blank">github.com/Faysoula/sptrsv-cuda</a></p>
 </div>
 
 </div><!-- /layout -->
+
 <script>
-/* ── DATA ─────────────────────────────────────────────────────────── */
 const RHS=[128,256,512];
 
 const MS=[
-  // M1 — kernelCPU (sequential, simple table only)
   {
     tag:'M1', name:'kernelCPU: Sequential',
     desc:'Forward substitution, row by row.',
@@ -323,7 +286,6 @@ const MS=[
       {n:'tmt_sym (large)',       rows:726713,  times:[2197,4624,12656]},
     ]
   },
-  // M2 — kernel0 (level-set), full comparison
   {
     tag:'M2', name:'kernel0: Level-Set',
     desc:'Basic parallel implementation',
@@ -334,7 +296,6 @@ const MS=[
       {n:'tmt_sym',       cpu:[2197,4624,12656], gpu:[7427,7606,7828]},
     ]
   },
-  // M3 — kernel1 (warp-per-row), full comparison with k0 reference
   {
     tag:'M3', name:'kernel1: Warp-per-Row',
     desc:'First optimization',
@@ -345,23 +306,25 @@ const MS=[
       {n:'tmt_sym',       cpu:[2197,4624,12656], k0:[7427,7606,7828],  k1:[2684.14,3829.50,6168.18]},
     ]
   },
-  // M4 — kernel2 (shared mem), full comparison with k1 reference
   {
     tag:'M4', name:'kernel2: Shared Mem',
     desc:'Second optimization — shared memory tiling',
     type:'k2comparison',
     ds:[
-      {n:'rajat18',       cpu:[307.1,625.5,1361.7],   k1:[53.17,79.88,117.47],    k2:[33.24,35.45,42.90]},
-      {n:'parabolic_fem', cpu:[3652.5,7356.6,15186.5], k1:[7.31,11.18,23.73],     k2:[9.09,9.89,18.02]},
-      {n:'tmt_sym',       cpu:[1970.2,3971.2,11116.0], k1:[2684.14,3829.58,6168.18], k2:[2432.30,3534.65,5742.67]},
+      {n:'rajat18',       cpu:[307.1,625.5,1361.7],    k1:[53.17,79.88,117.47],       k2:[33.24,35.45,42.90]},
+      {n:'parabolic_fem', cpu:[3652.5,7356.6,15186.5], k1:[7.31,11.18,23.73],         k2:[9.09,9.89,18.02]},
+      {n:'tmt_sym',       cpu:[1970.2,3971.2,11116.0], k1:[2684.14,3829.58,6168.18],  k2:[2432.30,3534.65,5742.67]},
     ]
   },
-  // M5 — kernel3, in progress
   {
-    tag:'M5', name:'kernel3: TBD',
-    desc:'Third optimization',
-    type:'inprogress',
-    eta:'Milestone 5'
+    tag:'M5', name:'kernel3: Coop Grid Sync',
+    desc:'Third optimization — persistent kernel with device-side grid barrier',
+    type:'k3comparison',
+    ds:[
+      {n:'rajat18',       cpu:[300.10,635.89,1434.53],    k2:[29,33,43],       k3:[7.09,6.10,7.18]},
+      {n:'parabolic_fem', cpu:[4011.49,8185.64,16549.48], k2:[7.2,9.9,18.0],   k3:[11.14,12.34,16.66]},
+      {n:'tmt_sym',       cpu:[1999.83,4247.75,11990.33], k2:[2678,3805,6105], k3:[1516.04,1574.82,1700.02]},
+    ]
   },
 ];
 
@@ -374,7 +337,6 @@ const DSC=[
 let am=0, on=[true,true,true];
 let tC, sC, m1C;
 
-/* ── CHART OPTIONS ─────────────────────────────────────────────────── */
 const cOpts=()=>({
   responsive:true, maintainAspectRatio:false,
   plugins:{
@@ -399,9 +361,7 @@ const cOpts=()=>({
   animation:{duration:220}
 });
 
-/* ── INIT ─────────────────────────────────────────────────────────── */
 function init(){
-  // Build tabs
   const tb=document.getElementById('mTabs');
   MS.forEach((m,i)=>{
     const b=document.createElement('button');
@@ -411,7 +371,6 @@ function init(){
     tb.appendChild(b);
   });
 
-  // Build dataset pills
   const dr=document.getElementById('dsRow');
   ['rajat18','parabolic_fem','tmt_sym'].forEach((name,i)=>{
     const b=document.createElement('button');
@@ -423,7 +382,6 @@ function init(){
     dr.appendChild(b);
   });
 
-  // Build charts
   tC=new Chart(document.getElementById('tChart'),{type:'line',data:{labels:RHS.map(r=>r+' cols'),datasets:[]},options:cOpts()});
   sC=new Chart(document.getElementById('sChart'),{type:'line',data:{labels:RHS.map(r=>r+' cols'),datasets:[]},options:cOpts()});
   m1C=new Chart(document.getElementById('m1Chart'),{type:'line',data:{labels:RHS.map(r=>r+' cols'),datasets:[]},options:cOpts()});
@@ -431,24 +389,16 @@ function init(){
   render();
 }
 
-/* ── RENDER ───────────────────────────────────────────────────────── */
 function render(){
   const m=MS[am];
-
-  // Show/hide pills
   document.getElementById('dsRow').style.display=(m.type==='cpu_chart'||m.type==='inprogress')?'none':'flex';
 
-  if(m.type==='inprogress'){
-    renderInProgress(m);
-  } else if(m.type==='cpu_chart'){
-    renderCpuOnly(m);
-  } else if(m.type==='k1comparison'){
-    renderK1(m);
-  } else if(m.type==='k2comparison'){
-    renderK2(m);
-  } else {
-    renderComparison(m);
-  }
+  if(m.type==='inprogress')         renderInProgress(m);
+  else if(m.type==='cpu_chart')     renderCpuOnly(m);
+  else if(m.type==='k1comparison')  renderK1(m);
+  else if(m.type==='k2comparison')  renderK2(m);
+  else if(m.type==='k3comparison')  renderK3(m);
+  else                               renderComparison(m);
 }
 
 /* ── IN PROGRESS ── */
@@ -463,9 +413,8 @@ function renderInProgress(m){
   document.getElementById('tblCard').style.display='none';
 }
 
-/* ── CPU ONLY (M1): table left + execution time chart right ── */
+/* ── CPU ONLY (M1) ── */
 function renderCpuOnly(m){
-  // Hide regular chart row and table, show m1 area
   document.getElementById('chartsRow').style.display='none';
   document.getElementById('overlay').className='overlay';
   document.getElementById('tblArea').style.display='none';
@@ -489,7 +438,6 @@ function renderCpuOnly(m){
       <div class="stat-sub">${s.sub}</div>
     </div>`).join('');
 
-  // Populate m1 chart
   const m1Ds=m.ds.map((ds,i)=>({
     label:ds.n, data:ds.times,
     borderColor:DSC[i].l, backgroundColor:'transparent',
@@ -499,7 +447,6 @@ function renderCpuOnly(m){
   const lh=items=>items.map(it=>`<span class="leg-i"><span class="leg-dot" style="background:${it.color}"></span>${it.label}</span>`).join('');
   document.getElementById('m1Leg').innerHTML=lh(m.ds.map((ds,i)=>({color:DSC[i].l,label:ds.n})));
 
-  // Table (inside m1Area left card)
   document.getElementById('tblTitleM1').textContent='KERNELCPU: SEQUENTIAL BASELINE';
   document.getElementById('tblNoteM1').textContent='CPU execution time (ms) across RHS column counts';
   let rows='';
@@ -524,25 +471,23 @@ function renderCpuOnly(m){
     <tbody>${rows}</tbody>`;
 }
 
-/* ── K1 COMPARISON (M3): k0 vs k1 time, k0/k1 speedup ── */
+/* ── K1 COMPARISON (M3) ── */
 function renderK1(m){
   document.getElementById('m1Area').style.display='none';
   document.getElementById('chartsRow').style.display='';
   document.getElementById('overlay').className='overlay';
   document.getElementById('tblArea').style.display='';
   document.getElementById('tblCard').style.display='';
-  document.getElementById('tChart').closest('.chart-card').querySelector('.chart-ttl').textContent='Execution Time (ms) — k0 vs k1';
-  document.getElementById('sChart').closest('.chart-card').querySelector('.chart-ttl').textContent='k0 / k1 Speedup (k1 improvement over k0)';
+  document.getElementById('tChartTitle').textContent='Execution Time (ms) — k0 vs k1';
+  document.getElementById('sChartTitle').textContent='k0 / k1 Speedup (k1 improvement over k0)';
 
   const tDs=[],sDs=[],tL=[],sL=[];
   m.ds.forEach((ds,i)=>{
     if(!on[i])return;
     const c=DSC[i];
-    // time: k0 dashed, k1 solid — no CPU
     tDs.push({label:ds.n+' k0', data:ds.k0, borderColor:c.cl, backgroundColor:'transparent', borderDash:[5,4], borderWidth:1.8, pointStyle:'rect', pointRadius:3.5, tension:0.3});
     tDs.push({label:ds.n+' k1', data:ds.k1, borderColor:c.l,  backgroundColor:'transparent', borderDash:[],    borderWidth:2.5, pointStyle:'circle', pointRadius:4.5, tension:0.3});
     tL.push({color:c.cl,label:ds.n+' k0',dash:true},{color:c.l,label:ds.n+' k1',dash:false});
-    // speedup: k0/k1
     const sp=ds.k0.map((k0,j)=>parseFloat((k0/ds.k1[j]).toFixed(2)));
     sDs.push({label:ds.n,data:sp,borderColor:c.l,backgroundColor:'transparent',borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
     sL.push({color:c.l,label:ds.n,dash:false});
@@ -554,15 +499,13 @@ function renderK1(m){
   document.getElementById('tLeg').innerHTML=lh(tL);
   document.getElementById('sLeg').innerHTML=lh(sL);
 
-  // Stats
-  let bestCpuK1=null,bestL='',worstCpuK1=null,worstL='';
   let bestK0K1=null,bestK0L='', worstK0K1=null,worstK0L='';
+  let bestCpuK1=null,bestL='',worstCpuK1=null,worstL='';
   m.ds.forEach((ds,i)=>{
     if(!on[i])return;
     ds.k1.forEach((k1,j)=>{
       const spCpu=ds.cpu[j]/k1;
       const spK0=ds.k0[j]/k1;
-
       if(bestCpuK1===null||spCpu>bestCpuK1){bestCpuK1=spCpu;bestL=ds.n+' @'+RHS[j];}
       if(worstCpuK1===null||spCpu<worstCpuK1){worstCpuK1=spCpu;worstL=ds.n+' @'+RHS[j];}
       if(bestK0K1===null||spK0>bestK0K1){bestK0K1=spK0;bestK0L=ds.n+' @'+RHS[j];}
@@ -571,7 +514,7 @@ function renderK1(m){
   });
   const stats=[
     {lbl:'Best k0/k1',   bar:'#9d8ff5', val:bestK0K1!==null?bestK0K1.toFixed(2)+'×':'—', cls:bestK0K1>=1?'g':'r', sub:bestK0L},
-    {lbl:'Worst k0/k1', bar:'#9d8ff5', val:worstK0K1!==null?worstK0K1.toFixed(2)+'×':'—', cls:worstK0K1>=1?'':'r', sub:worstK0L},
+    {lbl:'Worst k0/k1',  bar:'#9d8ff5', val:worstK0K1!==null?worstK0K1.toFixed(2)+'×':'—', cls:worstK0K1>=1?'':'r', sub:worstK0L},
     {lbl:'Datasets',     bar:'#9d8ff5', val:'3',   cls:'',  sub:'small · medium · large'},
     {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
   ];
@@ -583,7 +526,6 @@ function renderK1(m){
       <div class="stat-sub">${s.sub}</div>
     </div>`).join('');
 
-  // Table: Dataset | RHS | CPU | k0 | k1 | CPU/k1 | k0/k1
   document.getElementById('tblTitle').textContent='M3 · KERNEL1 — WARP-PER-ROW · FULL RESULTS';
   document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel0 (level-set), and kernel1 (warp-per-row)';
   let rows='';
@@ -614,25 +556,23 @@ function renderK1(m){
     <tbody>${rows}</tbody>`;
 }
 
-/* ── K2 COMPARISON (M4): k1 vs k2 time, k1/k2 speedup ── */
+/* ── K2 COMPARISON (M4) ── */
 function renderK2(m){
   document.getElementById('m1Area').style.display='none';
   document.getElementById('chartsRow').style.display='';
   document.getElementById('overlay').className='overlay';
   document.getElementById('tblArea').style.display='';
   document.getElementById('tblCard').style.display='';
-  document.getElementById('tChart').closest('.chart-card').querySelector('.chart-ttl').textContent='Execution Time (ms) — k1 vs k2';
-  document.getElementById('sChart').closest('.chart-card').querySelector('.chart-ttl').textContent='k1 / k2 Speedup (k2 improvement over k1)';
+  document.getElementById('tChartTitle').textContent='Execution Time (ms) — k1 vs k2';
+  document.getElementById('sChartTitle').textContent='k1 / k2 Speedup (k2 improvement over k1)';
 
   const tDs=[],sDs=[],tL=[],sL=[];
   m.ds.forEach((ds,i)=>{
     if(!on[i])return;
     const c=DSC[i];
-    // time: k1 dashed, k2 solid
     tDs.push({label:ds.n+' k1', data:ds.k1, borderColor:c.cl, backgroundColor:'transparent', borderDash:[5,4], borderWidth:1.8, pointStyle:'rect', pointRadius:3.5, tension:0.3});
     tDs.push({label:ds.n+' k2', data:ds.k2, borderColor:c.l,  backgroundColor:'transparent', borderDash:[],    borderWidth:2.5, pointStyle:'circle', pointRadius:4.5, tension:0.3});
     tL.push({color:c.cl,label:ds.n+' k1',dash:true},{color:c.l,label:ds.n+' k2',dash:false});
-    // speedup: k1/k2
     const sp=ds.k1.map((k1,j)=>parseFloat((k1/ds.k2[j]).toFixed(2)));
     sDs.push({label:ds.n,data:sp,borderColor:c.l,backgroundColor:'transparent',borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
     sL.push({color:c.l,label:ds.n,dash:false});
@@ -644,7 +584,6 @@ function renderK2(m){
   document.getElementById('tLeg').innerHTML=lh(tL);
   document.getElementById('sLeg').innerHTML=lh(sL);
 
-  // Stats
   let bestK1K2=null,bestK1L='', worstK1K2=null,worstK1L='';
   let bestCpuK2=null,bestCpuL='', worstCpuK2=null,worstCpuL='';
   m.ds.forEach((ds,i)=>{
@@ -672,7 +611,6 @@ function renderK2(m){
       <div class="stat-sub">${s.sub}</div>
     </div>`).join('');
 
-  // Table: Dataset | RHS | CPU | k1 | k2 | CPU/k2 | k1/k2
   document.getElementById('tblTitle').textContent='M4 · KERNEL2 — SHARED MEMORY · FULL RESULTS';
   document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel1 (warp-per-row), and kernel2 (shared memory)';
   let rows='';
@@ -703,17 +641,99 @@ function renderK2(m){
     <tbody>${rows}</tbody>`;
 }
 
-/* ── COMPARISON (M2): CPU vs GPU ── */
-function renderComparison(m){
+/* ── K3 COMPARISON (M5) ── */
+function renderK3(m){
   document.getElementById('m1Area').style.display='none';
-  const hasPending=m.ds.some(ds=>ds.gpu.some(v=>v===null));
-  const hasResults=m.ds.some(ds=>ds.gpu.some(v=>v!==null));
-
-  // Charts
   document.getElementById('chartsRow').style.display='';
   document.getElementById('overlay').className='overlay';
   document.getElementById('tblArea').style.display='';
   document.getElementById('tblCard').style.display='';
+  document.getElementById('tChartTitle').textContent='Execution Time (ms) — k2 vs k3';
+  document.getElementById('sChartTitle').textContent='k2 / k3 Speedup (k3 improvement over k2)';
+
+  const tDs=[],sDs=[],tL=[],sL=[];
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const c=DSC[i];
+    tDs.push({label:ds.n+' k2', data:ds.k2, borderColor:c.cl, backgroundColor:'transparent', borderDash:[5,4], borderWidth:1.8, pointStyle:'rect', pointRadius:3.5, tension:0.3});
+    tDs.push({label:ds.n+' k3', data:ds.k3, borderColor:c.l,  backgroundColor:'transparent', borderDash:[],    borderWidth:2.5, pointStyle:'circle', pointRadius:4.5, tension:0.3});
+    tL.push({color:c.cl,label:ds.n+' k2',dash:true},{color:c.l,label:ds.n+' k3',dash:false});
+    const sp=ds.k2.map((k2,j)=>parseFloat((k2/ds.k3[j]).toFixed(2)));
+    sDs.push({label:ds.n,data:sp,borderColor:c.l,backgroundColor:'transparent',borderWidth:2.5,pointStyle:'circle',pointRadius:4.5,tension:0.3});
+    sL.push({color:c.l,label:ds.n,dash:false});
+  });
+  tC.data.datasets=tDs; tC.update();
+  sC.data.datasets=sDs; sC.update();
+
+  const lh=items=>items.map(it=>`<span class="leg-i"><span class="leg-dot${it.dash?' dash':''}" style="${it.dash?'border-color:'+it.color:'background:'+it.color}"></span>${it.label}</span>`).join('');
+  document.getElementById('tLeg').innerHTML=lh(tL);
+  document.getElementById('sLeg').innerHTML=lh(sL);
+
+  let bestK2K3=null,bestK2L='', worstK2K3=null,worstK2L='';
+  let bestCpuK3=null,bestCpuL='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    ds.k3.forEach((k3,j)=>{
+      const spK2=ds.k2[j]/k3;
+      const spCpu=ds.cpu[j]/k3;
+      if(bestK2K3===null||spK2>bestK2K3){bestK2K3=spK2;bestK2L=ds.n+' @'+RHS[j];}
+      if(worstK2K3===null||spK2<worstK2K3){worstK2K3=spK2;worstK2L=ds.n+' @'+RHS[j];}
+      if(bestCpuK3===null||spCpu>bestCpuK3){bestCpuK3=spCpu;bestCpuL=ds.n+' @'+RHS[j];}
+    });
+  });
+  const stats=[
+    {lbl:'Best k2/k3',   bar:'#9d8ff5', val:bestK2K3!==null?bestK2K3.toFixed(2)+'×':'—', cls:bestK2K3>=1?'g':'r', sub:bestK2L},
+    {lbl:'Worst k2/k3',  bar:'#9d8ff5', val:worstK2K3!==null?worstK2K3.toFixed(2)+'×':'—', cls:worstK2K3>=1?'g':'r', sub:worstK2L},
+    {lbl:'Best CPU/k3',  bar:'#9d8ff5', val:bestCpuK3!==null?bestCpuK3.toFixed(0)+'×':'—', cls:'g', sub:bestCpuL},
+    {lbl:'RHS Configs',  bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(s=>`
+    <div class="stat-card fade">
+      <div class="stat-lbl">${s.lbl}</div>
+      <div class="stat-bar" style="background:${s.bar}"></div>
+      <div class="stat-val ${s.cls}">${s.val}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+
+  document.getElementById('tblTitle').textContent='M5 · KERNEL3 — COOPERATIVE GRID SYNC · FULL RESULTS';
+  document.getElementById('tblNote').textContent='Comparing sequential CPU, kernel2 (shared memory), and kernel3 (cooperative grid sync)';
+  let rows='';
+  m.ds.forEach((ds,i)=>{
+    if(!on[i])return;
+    const tc=DSC[i].t;
+    RHS.forEach((rhs,j)=>{
+      const cpu=ds.cpu[j], k2=ds.k2[j], k3=ds.k3[j];
+      const cpuK3=(cpu/k3), k2K3=(k2/k3);
+      const cpuK3Color=cpuK3>=1?'var(--p-mint)':'var(--p-rose)';
+      const k2K3Color=k2K3>=1?'var(--p-mint)':'var(--p-rose)';
+      const k2K3Label=k2K3>=1?'(k3 faster)':'(k2 faster)';
+      rows+=`<tr>
+        <td style="color:${tc};font-weight:600">${j===0?ds.n:''}</td>
+        <td>${rhs}</td>
+        <td>${cpu.toLocaleString()}</td>
+        <td>${typeof k2==='number'&&k2%1===0?k2.toFixed(1):k2.toFixed(2)}</td>
+        <td>${k3.toFixed(2)}</td>
+        <td style="font-weight:700;color:${cpuK3Color}">${cpuK3.toFixed(1)}×</td>
+        <td style="font-weight:700;color:${k2K3Color}">${k2K3.toFixed(2)}× <span style="font-size:9px;opacity:0.7">${k2K3Label}</span></td>
+      </tr>`;
+    });
+  });
+  document.getElementById('tbl').innerHTML=`
+    <thead><tr>
+      <th>Dataset</th><th>RHS</th><th>CPU (ms)</th><th>k2 (ms)</th><th>k3 (ms)</th><th>CPU/k3</th><th>k2/k3 (k3 speedup)</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>`;
+}
+
+/* ── COMPARISON (M2): CPU vs GPU ── */
+function renderComparison(m){
+  document.getElementById('m1Area').style.display='none';
+  document.getElementById('chartsRow').style.display='';
+  document.getElementById('overlay').className='overlay';
+  document.getElementById('tblArea').style.display='';
+  document.getElementById('tblCard').style.display='';
+  document.getElementById('tChartTitle').textContent='Execution Time (ms)';
+  document.getElementById('sChartTitle').textContent='Speedup over CPU (×)';
 
   const tDs=[],sDs=[],tL=[],sL=[];
   m.ds.forEach((ds,i)=>{
@@ -736,7 +756,6 @@ function renderComparison(m){
   document.getElementById('tLeg').innerHTML=lh(tL);
   document.getElementById('sLeg').innerHTML=lh(sL);
 
-  // Stats
   let best=null,bestL='',worst=null,worstL='';
   m.ds.forEach((ds,i)=>{
     if(!on[i])return;
@@ -748,8 +767,8 @@ function renderComparison(m){
     });
   });
   const stats=[
-    {lbl:'Best Speedup',  bar:best!==null?'#9d8ff5':'#2a3a52',  val:best!==null?best.toFixed(0)+'×':'—',  cls:best!==null?(best>=1?'g':'r'):'d', sub:bestL||'pending results'},
-    {lbl:'Worst Speedup', bar:worst!==null?(worst>=1?'#9d8ff5':'#9d8ff5'):'#9d8ff5', val:worst!==null?worst.toFixed(2)+'×':'—', cls:worst!==null?(worst>=1?'':'r'):'d', sub:worstL||'pending results'},
+    {lbl:'Best Speedup',  bar:'#9d8ff5', val:best!==null?best.toFixed(0)+'×':'—',   cls:best!==null?(best>=1?'g':'r'):'d', sub:bestL||'pending results'},
+    {lbl:'Worst Speedup', bar:'#9d8ff5', val:worst!==null?worst.toFixed(2)+'×':'—', cls:worst!==null?(worst>=1?'':'r'):'d', sub:worstL||'pending results'},
     {lbl:'RHS Configs',   bar:'#9d8ff5', val:'3', cls:'', sub:'128 · 256 · 512 cols'},
     {lbl:'Datasets',      bar:'#9d8ff5', val:'3', cls:'', sub:'small · med · large'},
   ];
@@ -761,7 +780,6 @@ function renderComparison(m){
       <div class="stat-sub">${s.sub}</div>
     </div>`).join('');
 
-  // Table
   const mname=MS[am].tag+' · '+MS[am].name;
   document.getElementById('tblTitle').textContent=(mname+' — Full Results').toUpperCase();
   document.getElementById('tblNote').textContent='GPU kernel time vs. sequential CPU baseline';
